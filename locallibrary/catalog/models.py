@@ -62,6 +62,12 @@ class Book(models.Model):
                 help_text="Select a language for this book"
             )
 
+    def display_genre(self):
+        """ Creating a string for the genre. This is required to display the genre in admin because of ManyToManyField """
+        return ', '.join(genre.name for genre in self.genre.all()[:3])
+
+    display_genre.short_description = 'Genre'
+
     def __str__(self):
         """String for representing the Model object"""
         return self.title
@@ -69,6 +75,9 @@ class Book(models.Model):
     def get_absolute_url(self):
         """Returns the URL to access a detail record for this book."""
         return reverse('book-detail', args=[str(self.id)])
+
+    class Meta:
+        ordering = ['title', 'author']
 
 class BookInstance(models.Model):
     """ Model representing a specific copy of a book (i.e. that can be borrowed from the library). """
@@ -82,6 +91,7 @@ class BookInstance(models.Model):
             on_delete=models.RESTRICT,
             null=True
         )
+    author = models.ForeignKey('Author', on_delete=models.RESTRICT, null=True)
     imprint = models.CharField(max_length=200)
     due_back = models.DateField(null=True, blank=True)
 
@@ -101,7 +111,7 @@ class BookInstance(models.Model):
         )
 
     class Meta:
-        ordering = ['due_back']
+        ordering = ['due_back', 'book', 'author']
 
     def __str__(self):
         """ String for representing the Model object. """
