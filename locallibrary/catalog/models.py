@@ -2,6 +2,8 @@ from django.db import models
 from django.urls import reverse # used in get_absolute_url() to get URL for specific ID
 from django.db.models import UniqueConstraint # Constrains fields ot unique values
 from django.db.models.functions import Lower # returns lower cased value of fields
+from django.conf import settings
+from datetime import date
 import uuid # Required for book instances
 
 # Create your models here.
@@ -94,6 +96,7 @@ class BookInstance(models.Model):
     author = models.ForeignKey('Author', on_delete=models.RESTRICT, null=True)
     imprint = models.CharField(max_length=200)
     due_back = models.DateField(null=True, blank=True)
+    borrower = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.SET_NULL, null = True, blank = True)
 
     LOAN_STATUS = (
             ('m', 'Maintenance'),
@@ -112,10 +115,16 @@ class BookInstance(models.Model):
 
     class Meta:
         ordering = ['due_back', 'book', 'author']
+        permissions = (('can_mark_returned', 'Set book as returned'),)
 
     def __str__(self):
         """ String for representing the Model object. """
         return f'{self.id} ({self.book.title})'
+    
+    @property
+    def is_overdue(self):
+        """ Determine if the book is overdue based on due date and current date. """
+        return bool(self.due_back and date.today() > self.due_back)
 
 class Author(models.Model):
     """ Model representing an author. """

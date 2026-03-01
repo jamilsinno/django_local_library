@@ -20,4 +20,8 @@
         <li><strong>Books Matching The Word Fiction:</strong> {{ num_book_match }}</li>
         <li><strong>Genre Matching The Word Fiction:</strong> {{ num_genre_match }}</li>
     </ul>
+
+    <p>
+        You have visited this page {{ num_visits }} time{{ num_visits|pluralize }}.
+    </p>
 {% endblock %}
