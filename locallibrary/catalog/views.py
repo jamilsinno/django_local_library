@@ -3,7 +3,7 @@ import datetime
 from django.shortcuts import render, get_object_or_404
 from .models import Book, Author, BookInstance, Genre
 from django.views import generic
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -83,7 +83,7 @@ class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
                 BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
         )
 
-class LoanedBooksListView(LoginRequiredMixin, generic.ListView):
+class LoanedBooksListView(PermissionRequiredMixin, generic.ListView):
     """ Generic class-based view listing borrowed books to librarians. """
     model = BookInstance
     template_name='catalog/bookinstance_list_borrowed.html'
